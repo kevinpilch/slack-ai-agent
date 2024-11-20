@@ -5,26 +5,19 @@ build-backend = "hatchling.build"
 [project]
 name = "slack-ai-agent"
 dynamic = ["version"]
-description = ''
+description = "A Slack AI agent that uses LangChain and LangGraph to execute agentic workflows."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 license = "MIT"
-keywords = []
 authors = [
   { name = "Kevin Pilch", email = "kev.pilch@gmail.com" },
 ]
-classifiers = [
-  "Development Status :: 4 - Beta",
-  "Programming Language :: Python",
-  "Programming Language :: Python :: 3.8",
-  "Programming Language :: Python :: 3.9",
-  "Programming Language :: Python :: 3.10",
-  "Programming Language :: Python :: 3.11",
-  "Programming Language :: Python :: 3.12",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Programming Language :: Python :: Implementation :: PyPy",
+dependencies = [
+  "langchain_openai" ,
+  "langgraph" ,
+  "trustcall" ,
+  "langchain_core"
 ]
-dependencies = []
 
 [project.urls]
 Documentation = "https://github.com/Kevin Pilch/slack-ai-agent#readme"
@@ -34,28 +27,42 @@ Source = "https://github.com/Kevin Pilch/slack-ai-agent"
 [tool.hatch.version]
 path = "src/slack_ai_agent/__about__.py"
 
-[tool.hatch.envs.types]
-extra-dependencies = [
-  "mypy>=1.0.0",
-]
-[tool.hatch.envs.types.scripts]
-check = "mypy --install-types --non-interactive {args:src/slack_ai_agent tests}"
-
-[tool.coverage.run]
-source_pkgs = ["slack_ai_agent", "tests"]
-branch = true
-parallel = true
-omit = [
-  "src/slack_ai_agent/__about__.py",
+[tool.hatch.envs.default]
+dependencies = [
+  "pre-commit",     # Pre-commit hooks for automated checks
+  "black",          # Code formatter for consistency
+  "ruff",           # Linter for style and error checking
+  "mypy",           # Static type checking
+  "pytest",         # Unit testing framework
+  "pytest-cov",     # Plugin for pytest to measure test coverage
+  "bandit",         # Security scanner to detect vulnerabilities
 ]
 
-[tool.coverage.paths]
-slack_ai_agent = ["src/slack_ai_agent", "*/slack-ai-agent/src/slack_ai_agent"]
-tests = ["tests", "*/slack-ai-agent/tests"]
+[tool.hatch.envs.default.scripts]
+test = "pytest --cov=src tests"
+lint = "ruff src tests"
+type-check = "mypy slack-ai-agent"
+format = "black src tests"
+security-scan = "bandit -r src"
+precommit = "pre-commit run --all-files"
 
-[tool.coverage.report]
-exclude_lines = [
-  "no cov",
-  "if __name__ == .__main__.:",
-  "if TYPE_CHECKING:",
-]
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+select = ["E", "F", "W", "C", "B"]  # Linting rules (errors, warnings, best practices)
+ignore = ["E501"]  # Ignore long lines (handled by Black)
+line-length = 88
+
+[tool.mypy]
+python_version = 3.11
+strict = true
+files = ["src", "tests"]
+
+[tool.pytest.ini_options]
+addopts = "--strict-markers"
+testpaths = ["tests"]
+
+[tool.bandit]
+skips = ["B101"]
