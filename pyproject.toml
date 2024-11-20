@@ -28,6 +28,8 @@ Source = "https://github.com/Kevin Pilch/slack-ai-agent"
 path = "src/slack_ai_agent/__about__.py"
 
 [tool.hatch.envs.default]
+type = "virtual"
+path = ".venv"
 dependencies = [
   "pre-commit",     # Pre-commit hooks for automated checks
   "black",          # Code formatter for consistency
