@@ -16,7 +16,11 @@ dependencies = [
   "langchain_openai" ,
   "langgraph" ,
   "trustcall" ,
-  "langchain_core"
+  "langchain_core",
+  "slack-sdk",
+  "slack-bolt",
+  "flask",
+  "python-dotenv"
 ]
 
 [project.urls]
@@ -42,25 +46,25 @@ dependencies = [
 
 [tool.hatch.envs.default.scripts]
 test = "pytest --cov=src tests"
-lint = "ruff src tests"
-type-check = "mypy slack-ai-agent"
-format = "black src tests"
-security-scan = "bandit -r src"
+lint = "ruff check --fix"
+type-check = "mypy src"
+security-scan = "bandit -r slack-ai-agent"
 precommit = "pre-commit run --all-files"
-
-[tool.black]
-line-length = 88
-target-version = ["py311"]
+slack = "python -m src.slack_ai_agent.slack"
 
 [tool.ruff]
-select = ["E", "F", "W", "C", "B"]  # Linting rules (errors, warnings, best practices)
-ignore = ["E501"]  # Ignore long lines (handled by Black)
-line-length = 88
+lint.select = ["E4", "E7", "E9", "F", "B"]
+line-length = 79
+lint.ignore = ["E501"]
+format.quote-style = "double"
 
 [tool.mypy]
 python_version = 3.11
 strict = true
-files = ["src", "tests"]
+namespace_packages = true
+explicit_package_bases = true
+packages = "src"
+disable_error_code = ["misc"]
 
 [tool.pytest.ini_options]
 addopts = "--strict-markers"
@@ -68,3 +72,10 @@ testpaths = ["tests"]
 
 [tool.bandit]
 skips = ["B101"]
+exclude_dirs = ["tests"]
+
+[tool.hatch.envs.local]
+inherit = ["default"]
+
+[tool.hatch.envs.local.env-vars]
+APP_ENV = "local"
